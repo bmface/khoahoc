@@ -1,6 +1,24 @@
 <?php
 
+
+
 include "../../config.php";
+
+require '../../aws/aws-autoloader.php';
+
+use Aws\Credentials\Credentials;
+use Aws\S3\S3Client;
+
+$credentials = new Credentials('009cb166bfa11e21c87d', 'EMnDN8HUUZYLQPeUCND2usD3Z6A0ns+Lb8aw3b9C');
+// Instantiate the S3 client
+$s3 = new S3Client([
+    'version' => 'latest',
+    'region' => 'pvn',
+    'endpoint' => 'https://s3-north.viettelidc.com.vn',
+    'credentials' => $credentials,
+    'use_path_style_endpoint' => true,
+]);
+
 
 //check login
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['admin'])) {
@@ -64,6 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $error = "";
 
+
+
+
     // check if content is empty
     if (empty($content)) {
         $error = '<div class="alert alert-danger">Vui lòng nhập nội dung bài học</div>';
@@ -80,14 +101,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     // upload video
                     move_uploaded_file($video_tmp_name, $video_destination);
+                    try {
+                        // Upload a file to Amazon S3
+                        $result = $s3->putObject([
+                            'Bucket' => 'video',
+                            'Key' => $video_name_new,
+                            'Body' => fopen('../../videos/' . $video_name_new, 'r'),
+                            'ACL'    => 'public-read',
+                        ]);
 
-                    // insert lession to database
-                    $sql = "INSERT INTO lessions (name, course_id, video, content,position) VALUES (?, ?, ?, ?,?)";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->execute([$name, $course_id,  $video_name_new, $content, $position]);
+                        //unlink
+                        unlink($video_destination);
 
-                    // redirect to lession page
-                    header('location: ' . $domain . '/admin/lession.php');
+                        // insert lession to database
+                        $sql = "INSERT INTO lessions (name, course_id, video, content,position) VALUES (?, ?, ?, ?,?)";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->execute([$name, $course_id,  $result["@metadata"]["effectiveUri"], $content, $position]);
+
+                        // redirect to lession page
+                        // header('location: ' . $domain . '/admin/lession.php');
+                    } catch (Exception $e) {
+                        $error = "Error s3: " . $e->getMessage();
+                    }
                 } else {
                     $error = '<div class="alert alert-danger">Tệp quá lớn</div>';
                 }

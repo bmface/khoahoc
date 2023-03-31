@@ -1,15 +1,12 @@
 <?php
 
-
-
-
 session_start();
-$password = "hitoolsp_get2fa@";
-$username = "hitoolsp_get2fa";
+$password = "";
+$username = "root";
 try {
-    $conn = new PDO('mysql:host=localhost;dbname=hitoolsp_get2fa', $username, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+    $conn = new PDO('mysql:host=localhost;dbname=khoahoc', $username, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
 } catch (PDOException $ex) {
-    die(json_encode(array('outcome' => false, 'message' => 'Unable to connect')));
+    die(json_encode(array('outcome' => false, 'message' => 'Unable to connect 1')));
 }
 
 // get current domain with http
@@ -158,7 +155,6 @@ function checkUserLogged()
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['token'] = $user['token'];
     $_SESSION['username'] = $user['username'];
-
 }
 
 

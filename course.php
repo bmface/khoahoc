@@ -130,19 +130,23 @@ include "components/header.php";
 .link-dark .fa-lock {
     display: none;
 }
+
 .d-none-2 {
     display: none;
 }
+
 .link-dark .fa-lock-open {
     display: block;
 }
+
 .form-warming-hv {
     position: absolute;
     padding: 5px 10px;
-    margin:5px 5px 5px 0px;
+    margin: 5px 5px 5px 0px;
     border-radius: 12px;
     background-color: #ebebeb;
 }
+
 .nav-item:hover .disabled .form-warming-hv {
     display: block;
 }
@@ -173,8 +177,9 @@ include "components/header.php";
                     <div class="row">
 
                         <div class="col-12 col-md-8 p-0">
-                            <video id="my-video" class="video-js vjs-16-9 vjs-fluid" controls preload="auto" data-setup='{"fluid": true}'>
-                                <source src="/view-video.php?id=<?= $lession["id"] ?>" type="video/mp4" />
+                            <video id="my-video" class="video-js vjs-16-9 vjs-fluid" controls preload="auto"
+                                data-setup='{"fluid": true}'>
+                                <source src="<?= $lession["video"] ?>" type="video/mp4" />
 
                                 <p class="vjs-no-js">
                                     To view this video please enable JavaScript, and consider upgrading to a
@@ -189,7 +194,8 @@ include "components/header.php";
                             <div class="form-course pb-2">
                                 <!-- Create list menu lession -->
                                 <div class="title-name-lessons">
-                                    <h4 class="pl-3 pr-3 mt-3 content-course"><span>Nội dung khóa học</span><i class="fa-solid fa-pencil"></i></h4>
+                                    <h4 class="pl-3 pr-3 mt-3 content-course"><span>Nội dung khóa học</span><i
+                                            class="fa-solid fa-pencil"></i></h4>
                                     <p class="pl-3 pr-3 ">Học theo thứ tự lần lượt từng bài</p>
                                 </div>
                                 <ul class="list-group name-lessons">
@@ -205,12 +211,14 @@ include "components/header.php";
                         <div class="col-12 mt-2">
                             <ul class="nav nav-tabs mb-3 arrow-navtabs tab-study" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#home" role="tab" aria-selected="false">
+                                    <a class="nav-link active" data-bs-toggle="tab" href="#home" role="tab"
+                                        aria-selected="false">
                                         Nội dung bài học
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#settings" role="tab" aria-selected="true">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#settings" role="tab"
+                                        aria-selected="true">
                                         Danh sách bài học
                                     </a>
                                 </li>
@@ -250,68 +258,68 @@ include "components/header.php";
         <!-- Add script videojs from dns -->
         <script src="https://vjs.zencdn.net/7.8.4/video.js"></script>
 
-  <!--      <script>
-            // disable user f12, crtl + u, crtl + shift + i
-            $(document).keydown(function(event) {
-                if (event.keyCode == 123) { // Prevent F12
-                    return false;
-                } else if (event.ctrlKey && event.shiftKey && event.keyCode == 73) { // Prevent Ctrl+Shift+I        
-                    return false;
-                } else if (event.ctrlKey && event.keyCode == 85) { // Prevent Ctrl+U
-                    return false;
-                }
-            });
+        <script>
+        // disable user f12, crtl + u, crtl + shift + i
+        $(document).keydown(function(event) {
+            if (event.keyCode == 123) { // Prevent F12
+                return false;
+            } else if (event.ctrlKey && event.shiftKey && event.keyCode == 73) { // Prevent Ctrl+Shift+I        
+                return false;
+            } else if (event.ctrlKey && event.keyCode == 85) { // Prevent Ctrl+U
+                return false;
+            }
+        });
 
-            // disable right click
-            $(document).bind("contextmenu", function(e) {
-                e.preventDefault();
-            });
-        </script>-->
+        // disable right click
+        $(document).bind("contextmenu", function(e) {
+            e.preventDefault();
+        });
+        </script>
 
 
         <script>
-            //jquery onload
-            $(document).ready(function() {
-                // videojs
-                var player = videojs('my-video');
+        //jquery onload
+        $(document).ready(function() {
+            // videojs
+            var player = videojs('my-video');
 
-                var updateLession = false
+            var updateLession = false
 
-                // check if player > 80%
-                player.on('timeupdate', function() {
-                    var percent = Math.floor((100 / this.duration()) * this.currentTime());
-                    if (percent > 80 && !updateLession) {
+            // check if player > 80%
+            player.on('timeupdate', function() {
+                var percent = Math.floor((100 / this.duration()) * this.currentTime());
+                if (percent > 80 && !updateLession) {
 
-                        axios.get('../api/updateLession.php?lession_id=<?= $lession_id ?>')
-                            .then(function(response) {
-                                updateLession = true
+                    axios.get('../api/updateLession.php?lession_id=<?= $lession_id ?>')
+                        .then(function(response) {
+                            updateLession = true
 
-                                const {
-                                    status,
-                                    message
-                                } = response.data
-                                if (status) {
-                                    Toastify({
-                                        text: message,
-                                        duration: 3000
-                                    }).showToast();
-
-
-                                    // enable next lession
-                                    $('.nav-link.active').parent().next().find('.nav-link').removeClass(
-                                        'disabled').addClass("link-dark")
+                            const {
+                                status,
+                                message
+                            } = response.data
+                            if (status) {
+                                Toastify({
+                                    text: message,
+                                    duration: 3000
+                                }).showToast();
 
 
-                                }
+                                // enable next lession
+                                $('.nav-link.active').parent().next().find('.nav-link').removeClass(
+                                    'disabled').addClass("link-dark")
 
 
-                            })
-                            .catch(function(error) {
-                                console.log(error);
-                            });
-                    }
-                })
+                            }
+
+
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        });
+                }
             })
+        })
         </script>
 
         <?php

@@ -2,6 +2,21 @@
 
 include "../../config.php";
 
+require '../../aws/aws-autoloader.php';
+
+use Aws\Credentials\Credentials;
+use Aws\S3\S3Client;
+
+$credentials = new Credentials('009cb166bfa11e21c87d', 'EMnDN8HUUZYLQPeUCND2usD3Z6A0ns+Lb8aw3b9C');
+// Instantiate the S3 client
+$s3 = new S3Client([
+    'version' => 'latest',
+    'region' => 'pvn',
+    'endpoint' => 'https://s3-north.viettelidc.com.vn',
+    'credentials' => $credentials,
+    'use_path_style_endpoint' => true,
+]);
+
 //check login
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['admin'])) {
     header('location: login.php');
@@ -88,6 +103,23 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['content'])
                         move_uploaded_file($video_tmp_name, $video_destination);
                         //update lession
 
+                        try {
+                            // Upload a file to Amazon S3
+                            $result = $s3->putObject([
+                                'Bucket' => 'video',
+                                'Key' => $video_name_new,
+                                'Body' => fopen('../../videos/' . $video_name_new, 'r'),
+                                'ACL'    => 'public-read',
+                            ]);
+
+                            //unlink
+                            unlink($video_destination);
+
+                            $video_name_new = $result["@metadata"]["effectiveUri"];
+                        } catch (Exception $e) {
+                            $isError = true;
+                            $error = "Error s3: " . $e->getMessage();
+                        }
                     } else {
                         echo '<script>alert("Vui lòng chọn đúng định dạng video")</script>';
                         $isError = true;
@@ -158,7 +190,8 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['content'])
                                 <!-- div input name -->
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Tên bài học</label>
-                                    <input type="text" class="form-control" id="name" name="name" value="<?= $lession["name"] ?>" required>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        value="<?= $lession["name"] ?>" required>
                                 </div>
 
                                 <!-- div choose course -->
@@ -172,7 +205,8 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['content'])
 
                                 <div class="mb-3">
                                     <label for="course" class="form-label">Vị trí</label>
-                                    <input type="number" name="position" placeholder="Vị trí" class="form-control" value="<?= $lession["position"]  ?>" id="">
+                                    <input type="number" name="position" placeholder="Vị trí" class="form-control"
+                                        value="<?= $lession["position"]  ?>" id="">
 
                                 </div>
 
@@ -225,21 +259,21 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['content'])
         ?>
 
         <script>
-            // add content field to form when submit
-            const form = document.querySelector('#form');
-            const content = document.querySelector('#content');
-            const editor = document.querySelector('.snow-editor');
+        // add content field to form when submit
+        const form = document.querySelector('#form');
+        const content = document.querySelector('#content');
+        const editor = document.querySelector('.snow-editor');
 
 
 
-            // add event click to button
-            const button = document.querySelector('#button');
-            button.addEventListener('click', function() {
-                const html = editor.children[0].innerHTML;
-                console.log(html, "html")
-                content.value = html;
-                form.submit();
-            })
+        // add event click to button
+        const button = document.querySelector('#button');
+        button.addEventListener('click', function() {
+            const html = editor.children[0].innerHTML;
+            console.log(html, "html")
+            content.value = html;
+            form.submit();
+        })
         </script>
 
 
