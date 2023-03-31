@@ -1,0 +1,34 @@
+@media (min-width: 1024.1px) {
+[data-layout=horizontal] .layout-width {
+    max-width:99%;
+}
+[data-layout=horizontal] .container-fluid {
+    max-width: 98%;
+}
+[data-layout=horizontal] .page-content {
+    margin-top: 20px;
+}
+[data-layout=horizontal] .main-content {
+    margin-left: 90px;
+}
+.main-study {
+    margin-left: 2.5rem;
+}
+.site-course .page-content {
+    margin-top: 10px;
+}
+}
+@media (max-width: 768px) {
+#carouselExampleCaptions {
+    display:none;
+}
+}
+
+@media (max-width: 1024px){
+[data-layout=horizontal] .menu .navbar-menu {
+    display: none;
+}
+[data-layout=horizontal] .navbar-menu {
+    display: block;
+}
+}
