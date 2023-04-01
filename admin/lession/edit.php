@@ -63,95 +63,35 @@ function printCourses($courses)
 }
 
 //check if form submit
-if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['content']) && isset($_POST['position'])) {
+if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['video']) && isset($_POST['content']) && isset($_POST['position'])) {
     $name = $_POST['name'];
     $course_id = $_POST['course'];
     $content = $_POST['content'];
     $position = $_POST['position'];
+    $video = $_POST['video'];
+
+    // sql injection
+    $name = htmlspecialchars($name);
+    $course_id = htmlspecialchars($course_id);
+    $content = htmlspecialchars($content);
+    $position = htmlspecialchars($position);
+    $video = htmlspecialchars($video);
 
 
-
-    //check not empty name and course_id
-    if (empty($name) || empty($course_id)) {
-        echo '<script>alert("Vui lòng nhập đầy đủ thông tin")</script>';
+    //check if not empty name, course, content, video
+    if (empty($name) || empty($course_id) || empty($content) || empty($position) || empty($video)) {
+        $error = '<div class="alert alert-danger">Vui lòng nhập đầy đủ thông tin</div>';
     } else {
-        $isError = false;
-
-        // check if upload video and not null
-
-
-        //check if upload video 
-        if (isset($_FILES['video']) && !empty($_FILES['video']['name'])) {
-            $video = $_FILES['video'];
-            $video_name = $video['name'];
-            $video_tmp_name = $video['tmp_name'];
-            $video_size = $video['size'];
-            $video_error = $video['error'];
-
-            //check if upload video
-            if ($video_error == 0) {
-                //check video size
-                if ($video_size < 1000000000) {
-                    //check video type
-                    $video_ext = explode('.', $video_name);
-                    $video_ext = strtolower(end($video_ext));
-                    $allowed = array('mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv');
-                    if (in_array($video_ext, $allowed)) {
-                        //upload video
-                        $video_name_new = uniqid('', true) . '.' . $video_ext;
-                        $video_destination = $root_dir . '/videos/' . $video_name_new;
-                        move_uploaded_file($video_tmp_name, $video_destination);
-                        //update lession
-
-                        try {
-                            // Upload a file to Amazon S3
-                            $result = $s3->putObject([
-                                'Bucket' => 'video',
-                                'Key' => $video_name_new,
-                                'Body' => fopen('../../videos/' . $video_name_new, 'r'),
-                                'ACL'    => 'public-read',
-                            ]);
-
-                            //unlink
-                            unlink($video_destination);
-
-                            $video_name_new = $result["@metadata"]["effectiveUri"];
-                        } catch (Exception $e) {
-                            $isError = true;
-                            $error = "Error s3: " . $e->getMessage();
-                        }
-                    } else {
-                        echo '<script>alert("Vui lòng chọn đúng định dạng video")</script>';
-                        $isError = true;
-                    }
-                } else {
-                    echo '<script>alert("Vùng lưu trữ video không đủ")</script>';
-                    $isError = true;
-                }
-            } else {
-                echo '<script>alert("Có lỗi xảy ra khi tải video")</script>';
-                $isError = true;
-            }
-        }
-
-        if (!$isError) {
-
-            // check if video_name_new is null
-            if (empty($video_name_new)) {
-                $video_name_new = $lession['video'];
-            }
-
-            $sql = "UPDATE lessions SET name = :name, course_id = :course_id, video = :video, content = :content, position = :position WHERE id = :id";
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':course_id', $course_id);
-            $stmt->bindParam(':video', $video_name_new);
-            $stmt->bindParam(':content', $content);
-            $stmt->bindParam(':position', $position);
-            $stmt->bindParam(':id', $id);
-            $stmt->execute();
-            header('location: ' . $domain . '/admin/lession.php');
-        }
+        $sql = "UPDATE lessions SET name = :name, course_id = :course_id, video = :video, content = :content, position = :position WHERE id = :id";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':course_id', $course_id);
+        $stmt->bindParam(':video', $video);
+        $stmt->bindParam(':content', $content);
+        $stmt->bindParam(':position', $position);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        header('location: ' . $domain . '/admin/lession.php');
     }
 }
 
@@ -214,7 +154,8 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['content'])
                                 <!-- div up load video -->
                                 <div class="mb-3">
                                     <label for="video" class="form-label">Video</label>
-                                    <input class="form-control" type="file" id="video" name="video" required>
+                                    <input type="text" class="form-control" id="video" name="video"
+                                        value="<?= $lession["video"] ?>" required>
                                 </div>
 
                                 <!-- div input content -->

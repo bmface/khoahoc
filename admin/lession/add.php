@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
     // check if not empty post name, course, content, video
-    if (empty($_POST['name']) || empty($_POST['course']) || empty($_POST['content']) || empty($_FILES['video']) || empty($_POST['position'])) {
+    if (empty($_POST['name']) || empty($_POST['course']) || empty($_POST['content']) || empty($_POST['video']) || empty($_POST['position'])) {
         $error = '<div class="alert alert-danger">Vui lòng nhập đầy đủ thông tin</div>';
     }
 
@@ -56,34 +56,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $course_id = $_POST['course'];
     $content = $_POST['content'];
     $position = $_POST['position'];
-
-    // upload video
-    $video = $_FILES['video'];
-    $video_name = $video['name'];
-    $video_tmp_name = $video['tmp_name'];
-    $video_size = $video['size'];
-    $video_error = $video['error'];
-    $video_type = $video['type'];
-
-    // get extension of video
-    $video_ext = explode('.', $video_name);
-    $video_ext = strtolower(end($video_ext));
-
-    // allow extension
-    $allowed = ['mp4', 'avi', 'mov', 'wmv'];
-
-    //check course_id in $courses
-    $course_exist = false;
-    foreach ($courses as $course) {
-        if ($course['id'] == $course_id) {
-            $course_exist = true;
-        }
-    }
-
+    $video = $_POST['video'];
     $error = "";
 
+    // sql injection
+    $name = htmlspecialchars($name);
+    $content = htmlspecialchars($content);
+    $video = htmlspecialchars($video);
+    $position = htmlspecialchars($position);
 
-
+    // check course exist
+    $sql = "SELECT * FROM courses WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$course_id]);
+    $course_exist = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // check if content is empty
     if (empty($content)) {
@@ -91,46 +77,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else if (!$course_exist) {
         $error = '<div class="alert alert-danger">Khóa học không tồn tại</div>';
     } else {
-        // check if video is valid
-        if (in_array($video_ext, $allowed)) {
-            if ($video_error === 0) {
-                if ($video_size < 1000000000) {
-                    // create new name for video
-                    $video_name_new = uniqid('', true) . '.' . $video_ext;
-                    $video_destination = $root_dir . '/videos/' . $video_name_new;
 
-                    // upload video
-                    move_uploaded_file($video_tmp_name, $video_destination);
-                    try {
-                        // Upload a file to Amazon S3
-                        $result = $s3->putObject([
-                            'Bucket' => 'video',
-                            'Key' => $video_name_new,
-                            'Body' => fopen('../../videos/' . $video_name_new, 'r'),
-                            'ACL'    => 'public-read',
-                        ]);
 
-                        //unlink
-                        unlink($video_destination);
 
-                        // insert lession to database
-                        $sql = "INSERT INTO lessions (name, course_id, video, content,position) VALUES (?, ?, ?, ?,?)";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->execute([$name, $course_id,  $result["@metadata"]["effectiveUri"], $content, $position]);
+        $sql = "INSERT INTO lessions (name, course_id, video, content,position) VALUES (?, ?, ?, ?,?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$name, $course_id,  $video, $content, $position]);
 
-                        // redirect to lession page
-                        // header('location: ' . $domain . '/admin/lession.php');
-                    } catch (Exception $e) {
-                        $error = "Error s3: " . $e->getMessage();
-                    }
-                } else {
-                    $error = '<div class="alert alert-danger">Tệp quá lớn</div>';
-                }
-            } else {
-                $error = '<div class="alert alert-danger">Có một lỗi khi tải lên tệp của bạn</div>';
-            }
+        // get last insert id
+        $last_id = $conn->lastInsertId();
+
+        //check success
+        if ($last_id) {
+            $error = '<div class="alert alert-success">Thêm thành công</div>';
         } else {
-            $error = '<div class="alert alert-danger">Bạn không thể tải lên các tệp thuộc loại này</div>';
+            $error = '<div class="alert alert-danger">Thêm thất bại</div>';
         }
     }
 }
@@ -154,6 +115,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="container-fluid">
                     <?php include "../components/title.php" ?>
 
+                    <?php if (isset($error)) {
+                        echo $error;
+                    } ?>
+
                     <div class="card">
                         <div class="card-header align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">
@@ -163,8 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
 
                         <div class="card-body">
-                            <form id="form" action="<?= $domain ?>/admin/lession/add.php" method="post"
-                                enctype="multipart/form-data">
+                            <form id="form" action="<?= $domain ?>/admin/lession/add.php" method="post" enctype="multipart/form-data">
 
                                 <!-- div input name -->
                                 <div class="mb-3">
@@ -183,15 +147,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                                 <div class="mb-3">
                                     <label for="course" class="form-label">Vị trí</label>
-                                    <input type="number" name="position" placeholder="Vị trí" class="form-control"
-                                        name="" id="">
+                                    <input type="number" name="position" placeholder="Vị trí" class="form-control" name="" id="">
 
                                 </div>
 
                                 <!-- div up load video -->
                                 <div class="mb-3">
                                     <label for="video" class="form-label">Video</label>
-                                    <input class="form-control" type="file" id="video" name="video" required>
+                                    <input class="form-control" type="text" id="video" name="video" required>
+
                                 </div>
 
                                 <!-- div input content -->
@@ -235,21 +199,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ?>
 
         <script>
-        // add content field to form when submit
-        const form = document.querySelector('#form');
-        const content = document.querySelector('#content');
-        const editor = document.querySelector('.snow-editor');
+            // add content field to form when submit
+            const form = document.querySelector('#form');
+            const content = document.querySelector('#content');
+            const editor = document.querySelector('.snow-editor');
 
 
 
-        // add event click to button
-        const button = document.querySelector('#button');
-        button.addEventListener('click', function() {
-            const html = editor.children[0].innerHTML;
-            console.log(html, "html")
-            content.value = html;
-            form.submit();
-        })
+            // add event click to button
+            const button = document.querySelector('#button');
+            button.addEventListener('click', function() {
+                const html = editor.children[0].innerHTML;
+                console.log(html, "html")
+                content.value = html;
+                form.submit();
+            })
         </script>
 
 
