@@ -20,14 +20,18 @@ $stmt = $conn->prepare($sql);
 $stmt->execute();
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// get all tickets of user and last reply order by id desc
-$sql = "SELECT tickets.*, users.username as username,
- ticket_replies.message as last_reply_content,
-  ticket_replies.created_at as last_reply_created_at 
-  FROM 
-  tickets LEFT JOIN users ON tickets.user_id = users.id 
-  LEFT JOIN ticket_replies ON tickets.id = ticket_replies.ticket_id 
-  GROUP BY tickets.id ORDER BY tickets.id DESC";
+// get all tickets of user and last reply order by id desc add paginate
+$limit = 20;
+$page = 1;
+if (isset($_GET['page'])) {
+    $page = $_GET['page'];
+}
+
+$offset = ($page - 1) * $limit;
+
+// get tickets with pagination
+$sql = "SELECT t.*, u.username FROM tickets t LEFT JOIN users u ON t.user_id = u.id ORDER BY t.id DESC LIMIT $limit OFFSET $offset";
+
 
 $stmt = $conn->prepare($sql);
 $stmt->execute();
@@ -74,7 +78,7 @@ function renderTickets()
             <a href="ticket.php?id=' . $ticket['id'] . '" class="text-body fw-bold">' . $ticket['created_at'] . '</a>
         </td>
         <td class="due_date">
-            <a href="ticket.php?id=' . $ticket['id'] . '" class="text-body fw-bold">' . $ticket['last_reply_created_at'] . '</a>
+            <a href="ticket.php?id=' . $ticket['id'] . '" class="text-body fw-bold">' . $ticket['updated_at'] . '</a>
         </td>
         <td class="action">
             <a href="ticket.php?id=' . $ticket['id'] . '" class="btn btn-primary btn-sm">Xem</a>
@@ -136,6 +140,29 @@ function renderTickets()
                                             <?php renderTickets(); ?>
                                         </tbody>
                                     </table>
+
+                                    <!-- create html pagianter -->
+                                    <?php
+                                    $sql = "SELECT count(*) as total FROM tickets";
+                                    $stmt = $conn->prepare($sql);
+                                    $stmt->execute();
+                                    $total = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+                                    $totalPage = ceil($total / $limit);
+                                    ?>
+
+                                    <?php
+
+                                    //foreach and create html pagination 
+                                    if ($totalPage > 1) {
+                                        echo '<ul class="pagination pagination-rounded justify-content-center mt-4">';
+                                        for ($i = 1; $i <= $totalPage; $i++) {
+                                            $active = $i == $page ? 'active' : '';
+                                            echo '<li class="page-item ' . $active . '"><a class="page-link" href="tickets.php?page=' . $i . '">' . $i . '</a></li>';
+                                        }
+                                        echo '</ul>';
+                                    }
+
+                                    ?>
 
                                 </div>
 
