@@ -70,12 +70,14 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['video']) &
     $position = $_POST['position'];
     $video = $_POST['video'];
 
+
     // sql injection
     $name = htmlspecialchars($name);
     $course_id = htmlspecialchars($course_id);
     $content = htmlspecialchars($content);
     $position = htmlspecialchars($position);
     $video = htmlspecialchars($video);
+
 
 
     //check if not empty name, course, content, video
@@ -114,6 +116,8 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['video']) &
                 <div class="container-fluid">
                     <?php include "../components/title.php" ?>
 
+                    <?php echo isset($error) ? $error : ""  ?>
+
                     <div class="card">
                         <div class="card-header align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">
@@ -130,8 +134,7 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['video']) &
                                 <!-- div input name -->
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Tên bài học</label>
-                                    <input type="text" class="form-control" id="name" name="name"
-                                        value="<?= $lession["name"] ?>" required>
+                                    <input type="text" class="form-control" id="name" name="name" value="<?= $lession["name"] ?>" required>
                                 </div>
 
                                 <!-- div choose course -->
@@ -145,8 +148,7 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['video']) &
 
                                 <div class="mb-3">
                                     <label for="course" class="form-label">Vị trí</label>
-                                    <input type="number" name="position" placeholder="Vị trí" class="form-control"
-                                        value="<?= $lession["position"]  ?>" id="">
+                                    <input type="number" name="position" placeholder="Vị trí" class="form-control" value="<?= $lession["position"]  ?>" id="">
 
                                 </div>
 
@@ -154,8 +156,7 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['video']) &
                                 <!-- div up load video -->
                                 <div class="mb-3">
                                     <label for="video" class="form-label">Video</label>
-                                    <input type="text" class="form-control" id="video" name="video"
-                                        value="<?= $lession["video"] ?>" required>
+                                    <input type="text" class="form-control" id="video" name="video" value="<?= $lession["video"] ?>" required>
                                 </div>
 
                                 <!-- div input content -->
@@ -163,7 +164,7 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['video']) &
                                     <label for="content" class="form-label">Nội dung</label>
 
                                     <div class="snow-editor" style="height: 300px">
-                                        <?= $lession["content"] ?>
+                                        <?= html_entity_decode($lession["content"]) ?>
                                     </div>
 
                                     <input type="hidden" id="content" name="content">
@@ -200,21 +201,21 @@ if (isset($_POST['name']) && isset($_POST['course']) && isset($_POST['video']) &
         ?>
 
         <script>
-        // add content field to form when submit
-        const form = document.querySelector('#form');
-        const content = document.querySelector('#content');
-        const editor = document.querySelector('.snow-editor');
+            // add content field to form when submit
+            const form = document.querySelector('#form');
+            const content = document.querySelector('#content');
+            const editor = document.querySelector('.snow-editor');
 
 
 
-        // add event click to button
-        const button = document.querySelector('#button');
-        button.addEventListener('click', function() {
-            const html = editor.children[0].innerHTML;
-            console.log(html, "html")
-            content.value = html;
-            form.submit();
-        })
+            // add event click to button
+            const button = document.querySelector('#button');
+            button.addEventListener('click', function() {
+                const html = editor.children[0].innerHTML;
+                console.log(html, "html")
+                content.value = html;
+                form.submit();
+            })
         </script>
 
 
