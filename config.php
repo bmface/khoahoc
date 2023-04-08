@@ -1,10 +1,10 @@
 <?php
 
 session_start();
-$password = "ajhctemihosting_emomedia.edu.vn@";
-$username = "ajhctemihosting_emomedia123";
+$username = "root";
+$password = "";
 try {
-    $conn = new PDO('mysql:host=localhost;dbname=ajhctemihosting_emomedia.edu.vn', $username, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+    $conn = new PDO('mysql:host=localhost;dbname=khoahoc', $username, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
 } catch (PDOException $ex) {
     die(json_encode(array('outcome' => false, 'message' => 'Unable to connect 1')));
 }

@@ -19,8 +19,7 @@
                 <img src="./assets/images/logo-light.png" alt="" height="17">
             </span>
         </a>
-        <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-            id="vertical-hover">
+        <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
             <i class="ri-record-circle-line"></i>
         </button>
     </div>
@@ -32,8 +31,7 @@
             </div>
             <div class="simplebar-mask">
                 <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                    <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content"
-                        style="height: 100%; overflow: hidden scroll;">
+                    <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: 100%; overflow: hidden scroll;">
                         <div class="simplebar-content" style="padding: 0px;">
                             <div class="container-fluid">
                                 <div id="two-column-menu"></div>
@@ -44,16 +42,14 @@
                                         </div>
                                         <div class="simplebar-mask">
                                             <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                                                <div class="simplebar-content-wrapper" tabindex="0" role="region"
-                                                    aria-label="scrollable content"
-                                                    style="height: auto; overflow: hidden;">
+                                                <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden;">
                                                     <div class="simplebar-content" style="padding: 0px;">
                                                         <li class="nav-item">
                                                             <a class="nav-link menu-link" href="/dashboard.php">
                                                                 <i class="fa-solid fa-circle-question" style="color:#1473e6;font-size: 45px;"></i>
                                                                 <span data-key="t-dashboards">Đặt câu hỏi</span>
                                                             </a>
-                                                        </li>                                                        
+                                                        </li>
                                                         <li class="nav-item">
                                                             <a class="nav-link menu-link" href="/dashboard.php">
                                                                 <i class="fa-solid fa-house"></i>
@@ -80,8 +76,41 @@
                                                         </li>-->
                                                         <li class="nav-item">
                                                             <a class="nav-link menu-link" href="/support.php">
+
+
+
                                                                 <i class="fa-solid fa-headset"></i>
                                                                 <span data-key="t-dashboards">Hỗ trợ</span>
+                                                            </a>
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <a class="nav-link menu-link" href="/tickets.php">
+
+                                                                <span class=" position-relative p-0 avatar-xs ">
+                                                                    <span class="">
+                                                                        <i class="fa-solid fa-ticket"></i>
+                                                                    </span>
+
+                                                                    <?php
+
+                                                                    $sql = "SELECT * FROM tickets WHERE status = 'Support trả lời' AND user_id = '" . $_SESSION["user_id"] . "'";
+                                                                    $smts = $conn->prepare($sql);
+                                                                    $smts->execute();
+                                                                    $count = $smts->rowCount();
+                                                                    ?>
+
+                                                                    <?php
+                                                                    // if $count > 0
+                                                                    if ($count > 0) {
+                                                                    ?>
+
+                                                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                                                                            <?php echo $count; ?>
+                                                                        </span>
+                                                                    <?php } ?>
+                                                                </span>
+
+                                                                <span data-key="t-dashboards">Ticket</span>
                                                             </a>
                                                         </li>
                                                         <li class="nav-item">
@@ -90,6 +119,7 @@
                                                                 <span data-key="t-dashboards">Nhà cung cấp</span>
                                                             </a>
                                                         </li>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -115,8 +145,7 @@
             <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
         </div>
         <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
-            <div class="simplebar-scrollbar"
-                style="height: 709px; display: block; transform: translate3d(0px, 0px, 0px);"></div>
+            <div class="simplebar-scrollbar" style="height: 709px; display: block; transform: translate3d(0px, 0px, 0px);"></div>
         </div>
     </div>
 </div>

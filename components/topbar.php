@@ -7,14 +7,14 @@
                     <!-- Show khi mở giao diện light-->
                     <a href="/dashboard.php" class="logo logo-dark">
                         <span class="logo-sm">
-                            <img src="/imgs/logo.png" alt="EMO" height="20"> 
+                            <img src="/imgs/logo.png" alt="EMO" height="20">
                         </span>
                         <span class="logo-lg">
                             <img src="/imgs/logo.png" alt="EMO" height="40">
                             <span class="logo-title ml-2">
-                            <?php
-                            include "components/title.php";
-                            ?>
+                                <?php
+                                include "components/title.php";
+                                ?>
                             </span>
                         </span>
                     </a>
@@ -28,9 +28,9 @@
                         <span class="logo-lg">
                             <img src="/imgs/logo-white.png" alt="EMO" height="40">
                             <span class="logo-title ml-2">
-                            <?php
-                            include "components/title.php";
-                            ?>
+                                <?php
+                                include "components/title.php";
+                                ?>
                             </span>
                         </span>
                     </a>
@@ -58,8 +58,6 @@
                 </div>
 
                 <div class="dropdown ms-sm-3 header-item">
-                    
-                    
                     <button type="button" class="btn shadow-none" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
                             <img class="rounded-circle header-profile-user" src="/imgs/logo-user.jpg" alt="Logo User">
@@ -70,7 +68,8 @@
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
-                        <h6 class="dropdown-header your-code">Mã code của bạn là: <?= $_SESSION['username'] ?? "" ?></h6>
+                        <h6 class="dropdown-header your-code">Mã code của bạn là: <?= $_SESSION['username'] ?? "" ?>
+                        </h6>
 
                         <a class="dropdown-item" href="logout.php"><i class="mdi mdi-logout fs-16 align-middle me-1"></i>
                             <span class="align-middle" data-key="t-logout">Đăng xuất</span></a>
